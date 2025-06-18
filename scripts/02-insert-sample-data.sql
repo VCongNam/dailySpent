@@ -1,0 +1,20 @@
+-- Thêm dữ liệu mẫu cho tháng 1/2025
+INSERT INTO expenses (date, description, amount, category) VALUES
+  ('2025-01-15', 'Ăn sáng phở', 35000, 'Ăn uống'),
+  ('2025-01-15', 'Xăng xe máy', 150000, 'Di chuyển'),
+  ('2025-01-15', 'Cà phê trưa', 45000, 'Ăn uống'),
+  ('2025-01-16', 'Ăn trưa cơm văn phòng', 50000, 'Ăn uống'),
+  ('2025-01-16', 'Mua sách lập trình', 250000, 'Giáo dục'),
+  ('2025-01-16', 'Grab về nhà', 85000, 'Di chuyển'),
+  ('2025-01-17', 'Siêu thị Coopmart', 320000, 'Mua sắm'),
+  ('2025-01-17', 'Tiền điện tháng 12', 450000, 'Tiện ích'),
+  ('2025-01-17', 'Ăn tối lẩu', 180000, 'Ăn uống'),
+  ('2025-01-18', 'Mua áo thun', 199000, 'Mua sắm'),
+  ('2025-01-18', 'Cắt tóc', 80000, 'Khác'),
+  ('2025-01-18', 'Ăn sáng bánh mì', 25000, 'Ăn uống'),
+  ('2025-01-19', 'Tiền internet', 200000, 'Tiện ích'),
+  ('2025-01-19', 'Ăn trưa bún bò', 40000, 'Ăn uống'),
+  ('2025-01-19', 'Mua thuốc cảm', 65000, 'Khác'),
+  ('2025-01-20', 'Đi xem phim', 120000, 'Giải trí'),
+  ('2025-01-20', 'Popcorn rạp chiếu', 60000, 'Ăn uống'),
+  ('2025-01-20', 'Grab đi chơi', 95000, 'Di chuyển');
