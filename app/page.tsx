@@ -13,6 +13,16 @@ import { ExpenseStats } from "@/components/expense-stats"
 import { startOfMonth, endOfMonth } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Upload } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function ExpenseTracker() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
@@ -24,6 +34,8 @@ export default function ExpenseTracker() {
   const { toast } = useToast()
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
   const [monthlyExpenses, setMonthlyExpenses] = useState<Expense[]>([])
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null)
 
   // Fetch all expenses
   const fetchAllExpenses = async () => {
@@ -103,12 +115,16 @@ export default function ExpenseTracker() {
 
   // Delete expense
   const handleDeleteExpense = async (id: string) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa chi tiêu này?")) {
-      return
-    }
+    setExpenseToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  // Confirm and execute delete
+  const confirmDelete = async () => {
+    if (!expenseToDelete) return
 
     try {
-      const { error } = await supabase.from("expenses").delete().eq("id", id)
+      const { error } = await supabase.from("expenses").delete().eq("id", expenseToDelete)
 
       if (error) throw error
 
@@ -128,6 +144,9 @@ export default function ExpenseTracker() {
         description: "Không thể xóa chi tiêu",
         variant: "destructive",
       })
+    } finally {
+      setDeleteDialogOpen(false)
+      setExpenseToDelete(null)
     }
   }
 
@@ -246,6 +265,24 @@ export default function ExpenseTracker() {
           selectedDate={selectedDate}
           editingExpense={editingExpense}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn xóa chi tiêu này? Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   )
