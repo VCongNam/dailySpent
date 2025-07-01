@@ -14,3 +14,12 @@ export type Expense = {
   category: string
   created_at: string
 }
+
+export type Income = {
+  id: number
+  date: string
+  description: string
+  amount: number
+  category: string
+  created_at: string
+}

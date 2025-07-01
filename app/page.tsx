@@ -5,7 +5,7 @@ import { ExpenseCalendar } from "@/components/expense-calendar"
 import { ExpenseList } from "@/components/expense-list"
 import { ExpenseForm } from "@/components/expense-form"
 import { ImportExpenses } from "@/components/import-expenses"
-import { supabase, type Expense } from "@/lib/supabase"
+import { supabase, type Expense, type Income } from "@/lib/supabase"
 import { format } from "date-fns"
 import { useToast } from "@/hooks/use-simple-toast"
 import { ExpenseChart } from "@/components/expense-chart"
@@ -23,6 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { IncomeForm } from "@/components/income-form"
 
 export default function ExpenseTracker() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
@@ -36,6 +37,9 @@ export default function ExpenseTracker() {
   const [monthlyExpenses, setMonthlyExpenses] = useState<Expense[]>([])
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null)
+  const [incomes, setIncomes] = useState<Income[]>([])
+  const [isIncomeFormOpen, setIsIncomeFormOpen] = useState(false)
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null)
 
   // Fetch all expenses
   const fetchAllExpenses = async () => {
@@ -71,6 +75,22 @@ export default function ExpenseTracker() {
       toast({
         title: "Lỗi",
         description: "Không thể tải chi tiêu cho ngày này",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Fetch all incomes
+  const fetchAllIncomes = async () => {
+    try {
+      const { data, error } = await supabase.from("incomes").select("*").order("date", { ascending: false })
+      if (error) throw error
+      setIncomes(data || [])
+    } catch (error) {
+      console.error("Error fetching incomes:", error)
+      toast({
+        title: "Lỗi",
+        description: "Không thể tải danh sách doanh thu",
         variant: "destructive",
       })
     }
@@ -119,37 +139,6 @@ export default function ExpenseTracker() {
     setDeleteDialogOpen(true)
   }
 
-  // Confirm and execute delete
-  const confirmDelete = async () => {
-    if (!expenseToDelete) return
-
-    try {
-      const { error } = await supabase.from("expenses").delete().eq("id", expenseToDelete)
-
-      if (error) throw error
-
-      toast({
-        title: "Thành công",
-        description: "Đã xóa chi tiêu",
-      })
-
-      fetchAllExpenses()
-      if (selectedDate) {
-        fetchExpensesForDate(selectedDate)
-      }
-    } catch (error) {
-      console.error("Error deleting expense:", error)
-      toast({
-        title: "Lỗi",
-        description: "Không thể xóa chi tiêu",
-        variant: "destructive",
-      })
-    } finally {
-      setDeleteDialogOpen(false)
-      setExpenseToDelete(null)
-    }
-  }
-
   // Handle date selection
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date)
@@ -194,8 +183,83 @@ export default function ExpenseTracker() {
     }
   }
 
+  // Add or update income
+  const handleSubmitIncome = async (incomeData: Omit<Income, "id" | "created_at">) => {
+    try {
+      if (editingIncome) {
+        const { error } = await supabase.from("incomes").update(incomeData).eq("id", editingIncome.id)
+        if (error) throw error
+        toast({
+          title: "Thành công",
+          description: "Đã cập nhật doanh thu",
+        })
+      } else {
+        const { error } = await supabase.from("incomes").insert([incomeData])
+        if (error) throw error
+        toast({
+          title: "Thành công",
+          description: "Đã thêm doanh thu mới",
+        })
+      }
+      setIsIncomeFormOpen(false)
+      setEditingIncome(null)
+      fetchAllIncomes()
+    } catch (error) {
+      console.error("Error saving income:", error)
+      toast({
+        title: "Lỗi",
+        description: "Không thể lưu doanh thu",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Handle edit income
+  const handleEditIncome = (income: Income) => {
+    setEditingIncome(income)
+    setIsIncomeFormOpen(true)
+  }
+
+  // Handle add income
+  const handleAddIncome = () => {
+    setEditingIncome(null)
+    setIsIncomeFormOpen(true)
+  }
+
+  // Confirm and execute delete
+  const confirmDelete = async () => {
+    if (!expenseToDelete) return;
+
+    try {
+      const { error } = await supabase.from("expenses").delete().eq("id", expenseToDelete);
+
+      if (error) throw error;
+
+      toast({
+        title: "Thành công",
+        description: "Đã xóa chi tiêu",
+      });
+
+      fetchAllExpenses();
+      if (selectedDate) {
+        fetchExpensesForDate(selectedDate);
+      }
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể xóa chi tiêu",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setExpenseToDelete(null);
+    }
+  };
+
   useEffect(() => {
     fetchAllExpenses()
+    fetchAllIncomes()
   }, [])
 
   useEffect(() => {
@@ -234,7 +298,13 @@ export default function ExpenseTracker() {
         )}
 
         {/* Thống kê tổng quan */}
-        <ExpenseStats expenses={allExpenses} selectedMonth={selectedMonth} />
+        <div className="flex flex-col gap-4 mb-4">
+          <div className="flex gap-2">
+            <Button onClick={handleAddExpense} size="sm">Thêm Chi Tiêu</Button>
+            <Button onClick={handleAddIncome} size="sm" variant="secondary">Thêm Doanh Thu</Button>
+          </div>
+          <ExpenseStats expenses={allExpenses} incomes={incomes} selectedMonth={selectedMonth} />
+        </div>
 
         {/* Biểu đồ chi tiêu */}
         <ExpenseChart expenses={monthlyExpenses} selectedMonth={selectedMonth} />
@@ -264,6 +334,17 @@ export default function ExpenseTracker() {
           onSubmit={handleSubmitExpense}
           selectedDate={selectedDate}
           editingExpense={editingExpense}
+        />
+
+        <IncomeForm
+          isOpen={isIncomeFormOpen}
+          onClose={() => {
+            setIsIncomeFormOpen(false)
+            setEditingIncome(null)
+          }}
+          onSubmit={handleSubmitIncome}
+          selectedDate={selectedDate}
+          editingIncome={editingIncome}
         />
 
         {/* Delete Confirmation Dialog */}
