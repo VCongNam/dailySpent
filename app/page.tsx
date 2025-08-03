@@ -10,6 +10,7 @@ import { format } from "date-fns"
 import { useToast } from "@/hooks/use-simple-toast"
 import { ExpenseChart } from "@/components/expense-chart"
 import { ExpenseStats } from "@/components/expense-stats"
+import { MonthlyHistory } from "@/components/monthly-history"
 import { startOfMonth, endOfMonth } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Upload } from "lucide-react"
@@ -308,6 +309,14 @@ export default function ExpenseTracker() {
 
         {/* Biểu đồ chi tiêu */}
         <ExpenseChart expenses={monthlyExpenses} selectedMonth={selectedMonth} />
+
+        {/* Lịch sử chi tiêu các tháng */}
+        <MonthlyHistory 
+          expenses={allExpenses} 
+          incomes={incomes} 
+          selectedMonth={selectedMonth} 
+          onMonthChange={setSelectedMonth} 
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
