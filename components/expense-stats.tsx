@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, TrendingDown, Calendar, Wallet } from "lucide-react"
+import { TrendingUp, TrendingDown, Calendar, Wallet, Zap } from "lucide-react"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { vi } from "date-fns/locale"
 import type { Expense, Income } from "@/lib/supabase"
@@ -54,10 +54,6 @@ export function ExpenseStats({ expenses, incomes, selectedMonth }: ExpenseStatsP
   const percentageChange = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0
   const isIncrease = percentageChange > 0
 
-  // Tính trung bình theo ngày
-  const daysInMonth = currentMonthEnd.getDate()
-  const averagePerDay = currentTotal / daysInMonth
-
   // Tìm ngày chi tiêu nhiều nhất
   const dailyTotals = currentMonthExpenses.reduce(
     (acc, expense) => {
@@ -89,6 +85,7 @@ export function ExpenseStats({ expenses, incomes, selectedMonth }: ExpenseStatsP
           </div>
         </CardContent>
       </Card>
+      
       {/* Tổng chi tiêu tháng */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -103,6 +100,7 @@ export function ExpenseStats({ expenses, incomes, selectedMonth }: ExpenseStatsP
           </div>
         </CardContent>
       </Card>
+      
       {/* Số dư tháng */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -117,19 +115,30 @@ export function ExpenseStats({ expenses, incomes, selectedMonth }: ExpenseStatsP
           </div>
         </CardContent>
       </Card>
-      {/* Trung bình mỗi ngày */}
+      
+      {/* Ngày tiêu nhiều nhất trong tháng */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Trung Bình/Ngày (Chi)</CardTitle>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">Ngày Tiêu Nhiều Nhất</CardTitle>
+          <Zap className="h-4 w-4 text-orange-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(currentTotal / currentMonthEnd.getDate())}</div>
-          <p className="text-xs text-muted-foreground">{currentMonthExpenses.length} giao dịch</p>
+          {maxDayExpense.date ? (
+            <>
+              <div className="text-2xl font-bold text-orange-600">{formatCurrency(maxDayExpense.amount)}</div>
+              <div className="flex items-center text-xs text-muted-foreground">
+                <Calendar className="mr-1 h-3 w-3" />
+                {format(new Date(maxDayExpense.date), "dd/MM/yyyy", { locale: vi })}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-2xl font-bold text-muted-foreground">-</div>
+              <p className="text-xs text-muted-foreground">Chưa có dữ liệu</p>
+            </>
+          )}
         </CardContent>
       </Card>
-
-     
     </div>
   )
 }

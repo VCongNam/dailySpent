@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Upload, FileSpreadsheet, CheckCircle, XCircle, AlertCircle } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-simple-toast"
 import * as XLSX from "xlsx"
+import { getCurrentGmt7Date } from "@/lib/utils"
 
 interface ImportedExpense {
   amount: string
@@ -46,7 +49,7 @@ export function ImportExpenses() {
       const date = new Date(timeStr)
       return date.toISOString().split("T")[0] // Chỉ lấy phần date YYYY-MM-DD
     } catch {
-      return new Date().toISOString().split("T")[0]
+      return getCurrentGmt7Date().toISOString().split("T")[0]
     }
   }
 

@@ -25,16 +25,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { IncomeForm } from "@/components/income-form"
+import { getCurrentGmt7Date } from "@/lib/utils"
 
 export default function ExpenseTracker() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(getCurrentGmt7Date())
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [allExpenses, setAllExpenses] = useState<Expense[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [showImport, setShowImport] = useState(false)
   const { toast } = useToast()
-  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
+  const [selectedMonth, setSelectedMonth] = useState<Date>(getCurrentGmt7Date())
   const [monthlyExpenses, setMonthlyExpenses] = useState<Expense[]>([])
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null)

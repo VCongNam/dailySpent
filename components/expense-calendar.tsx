@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
+import { getCurrentGmt7Date } from "@/lib/utils"
 
 interface ExpenseCalendarProps {
   selectedDate: Date | undefined
@@ -14,7 +15,7 @@ interface ExpenseCalendarProps {
 }
 
 export function ExpenseCalendar({ selectedDate, onDateSelect, expenseDates }: ExpenseCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentMonth, setCurrentMonth] = useState(getCurrentGmt7Date())
 
   const hasExpenseOnDate = (date: Date) => {
     const dateString = format(date, "yyyy-MM-dd")

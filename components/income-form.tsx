@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { format } from "date-fns"
 import type { Income } from "@/lib/supabase"
+import { getCurrentGmt7Date } from "@/lib/utils"
 
 interface IncomeFormProps {
   isOpen: boolean
@@ -23,7 +24,7 @@ const incomeCategories = ["Lương", "Thưởng", "Kinh doanh", "Đầu tư", "K
 
 export function IncomeForm({ isOpen, onClose, onSubmit, selectedDate, editingIncome }: IncomeFormProps) {
   const [formData, setFormData] = useState({
-    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(getCurrentGmt7Date(), "yyyy-MM-dd"),
     description: "",
     amount: "",
     category: "",
@@ -39,7 +40,7 @@ export function IncomeForm({ isOpen, onClose, onSubmit, selectedDate, editingInc
       })
     } else {
       setFormData({
-        date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+        date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(getCurrentGmt7Date(), "yyyy-MM-dd"),
         description: "",
         amount: "",
         category: "",
@@ -59,7 +60,7 @@ export function IncomeForm({ isOpen, onClose, onSubmit, selectedDate, editingInc
     })
 
     setFormData({
-      date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+      date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(getCurrentGmt7Date(), "yyyy-MM-dd"),
       description: "",
       amount: "",
       category: "",

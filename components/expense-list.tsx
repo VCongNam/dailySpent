@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import type { Expense } from "@/lib/supabase"
+import { TimeDisplay } from "@/components/ui/time-display"
 
 interface ExpenseListProps {
   selectedDate: Date | undefined
@@ -83,6 +84,7 @@ export function ExpenseList({
                     <Badge className={getCategoryColor(expense.category)}>{expense.category}</Badge>
                   </div>
                   <div className="text-lg font-semibold text-primary">{formatCurrency(expense.amount)}</div>
+                  <TimeDisplay time={expense.created_at} />
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => onEditExpense(expense)}>
