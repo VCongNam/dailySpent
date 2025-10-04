@@ -13,7 +13,8 @@ import { ExpenseStats } from "@/components/expense-stats"
 import { MonthlyHistory } from "@/components/monthly-history"
 import { startOfMonth, endOfMonth } from "date-fns"
 import { Button } from "@/components/ui/button"
-import { Upload } from "lucide-react"
+import { Upload, CalendarCheck } from "lucide-react"
+import Link from "next/link"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -301,7 +302,13 @@ export default function ExpenseTracker() {
 
         {/* Thống kê tổng quan */}
         <div className="flex flex-col gap-4 mb-4">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="outline">
+              <Link href="/attendance">
+                <CalendarCheck className="w-4 h-4 mr-2" />
+                Chấm công
+              </Link>
+            </Button>
             <Button onClick={handleAddExpense} size="sm">Thêm Chi Tiêu</Button>
             <Button onClick={handleAddIncome} size="sm" variant="secondary">Thêm Doanh Thu</Button>
           </div>
