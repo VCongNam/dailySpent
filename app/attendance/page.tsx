@@ -20,7 +20,14 @@ interface AttendedDay {
 // --- Helper Functions ---
 const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 const isSunday = (date: Date) => date.getDay() === 0;
-const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+// Correctly formats a Date object to 'YYYY-MM-DD' in the local timezone.
+const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 // --- Main Page Component ---
 export default function AttendancePage() {
@@ -32,7 +39,8 @@ export default function AttendancePage() {
 
   const selectedDayInfo = useMemo(() => {
     if (!date) return null;
-    return attendedDays.find(d => formatDate(d.date) === formatDate(date)) || null;
+    const formattedSelectedDate = formatDate(date);
+    return attendedDays.find(d => formatDate(d.date) === formattedSelectedDate) || null;
   }, [date, attendedDays]);
 
   useEffect(() => {
@@ -44,6 +52,8 @@ export default function AttendancePage() {
         toast.error('Lỗi khi tải dữ liệu điểm danh.', { description: error.message })
       } else if (data) {
         const dates = data.map((item: { date: string; attendance_type: AttendanceType }) => ({
+          // When creating a Date from a 'YYYY-MM-DD' string, it's interpreted as UTC.
+          // Adding 'T00:00:00' makes it parse as local time, avoiding timezone shifts on display.
           date: new Date(item.date + 'T00:00:00'),
           type: item.attendance_type,
         }))
@@ -58,14 +68,15 @@ export default function AttendancePage() {
     if (!date) { toast.error('Vui lòng chọn ngày.'); return }
     setLoading(true)
     try {
-      const result = await addAttendance(date, attendanceType)
+      const dateString = formatDate(date);
+      const result = await addAttendance(dateString, attendanceType)
       if (result.error) {
         toast.error(selectedDayInfo ? 'Sửa điểm danh thất bại.' : 'Điểm danh thất bại.', { description: result.error })
       } else if (result.success) {
         toast.success(result.success)
         setAttendedDays(prev => {
           const newAttendance = { date, type: attendanceType };
-          const existingIndex = prev.findIndex(d => formatDate(d.date) === formatDate(date));
+          const existingIndex = prev.findIndex(d => formatDate(d.date) === dateString);
           if (existingIndex !== -1) {
             const updatedDays = [...prev];
             updatedDays[existingIndex] = newAttendance;
@@ -86,12 +97,13 @@ export default function AttendancePage() {
     if (!date) { toast.error('Vui lòng chọn ngày để xóa.'); return }
     setLoading(true);
     try {
-        const result = await deleteAttendance(date);
+        const dateString = formatDate(date);
+        const result = await deleteAttendance(dateString);
         if (result.error) {
             toast.error('Xóa điểm danh thất bại.', { description: result.error });
         } else if (result.success) {
             toast.success(result.success);
-            setAttendedDays(prev => prev.filter(d => formatDate(d.date) !== formatDate(date)));
+            setAttendedDays(prev => prev.filter(d => formatDate(d.date) !== dateString));
         }
     } catch (e) {
         console.error('Lỗi xóa điểm danh:', e);
@@ -157,8 +169,8 @@ export default function AttendancePage() {
                 </div>
               )}
               <div className="flex flex-col gap-2">
-                <Button onClick={() => handleCheckIn('full_day')} disabled={loading || !date || isSunday(date!)}>{selectedDayInfo ? 'Đổi sang Cả ngày' : 'Điểm danh (Cả ngày)'}</Button>
-                <Button onClick={() => handleCheckIn('half_day')} disabled={loading || !date || isSunday(date!)} variant="secondary">{selectedDayInfo ? 'Đổi sang Nửa ngày' : 'Điểm danh (Nửa ngày)'}</Button>
+                <Button onClick={() => handleCheckIn('full_day')} disabled={loading || !date || (date && isSunday(date))} >{selectedDayInfo ? 'Đổi sang Cả ngày' : 'Điểm danh (Cả ngày)'}</Button>
+                <Button onClick={() => handleCheckIn('half_day')} disabled={loading || !date || (date && isSunday(date))} variant="secondary">{selectedDayInfo ? 'Đổi sang Nửa ngày' : 'Điểm danh (Nửa ngày)'}</Button>
               </div>
               {selectedDayInfo && (
                 <AlertDialog>
@@ -166,7 +178,7 @@ export default function AttendancePage() {
                     <Button variant="destructive" className="w-full" disabled={loading}>Xóa điểm danh</Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
-                    <AlertDialogHeader><AlertDialogTitle>Bạn có chắc chắn?</AlertDialogTitle><AlertDialogDescription>Hành động này sẽ xóa dữ liệu điểm danh của ngày {formatDate(date!)}. Bạn không thể hoàn tác.</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogHeader><AlertDialogTitle>Bạn có chắc chắn?</AlertDialogTitle><AlertDialogDescription>Hành động này sẽ xóa dữ liệu điểm danh của ngày {date ? formatDate(date) : ''}. Bạn không thể hoàn tác.</AlertDialogDescription></AlertDialogHeader>
                     <AlertDialogFooter><AlertDialogCancel>Hủy</AlertDialogCancel><AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction></AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
