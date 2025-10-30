@@ -21,7 +21,7 @@ interface ExpenseFormProps {
   editingExpense?: Expense | null
 }
 
-const categories = ["Ăn uống", "Di chuyển", "Mua sắm", "Giáo dục", "Tiện ích", "Khác"]
+const categories = ["Ăn uống", "Di chuyển", "Mua sắm", "Tình yêu", "Giáo dục", "Tiện ích", "Khác"]
 
 export function ExpenseForm({ isOpen, onClose, onSubmit, selectedDate, editingExpense }: ExpenseFormProps) {
   const [formData, setFormData] = useState({

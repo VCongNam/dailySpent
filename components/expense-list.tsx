@@ -37,6 +37,7 @@ export function ExpenseList({
       "Ăn uống": "bg-orange-100 text-orange-800",
       "Di chuyển": "bg-blue-100 text-blue-800",
       "Mua sắm": "bg-green-100 text-green-800",
+      "Tình yêu": "bg-pink-100 text-pink-800",
       "Giáo dục": "bg-purple-100 text-purple-800",
       "Tiện ích": "bg-yellow-100 text-yellow-800",
       Khác: "bg-gray-100 text-gray-800",
